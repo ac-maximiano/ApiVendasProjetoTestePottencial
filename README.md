@@ -16,8 +16,6 @@ Sqlite; Automapper; xUnit
 
 ASP.NET Core SDK 7.0.202
 ## Instalação
-
-### Package Manager Console
-####  'Default project' - selecionar 'Pottencial.Teste.Infra.Data
-####  Rodar comando 'update-database'
+##### 'Solution Explorer'- clicar com o botão direito sobre o projeto 'Pottencial.Teste.Presentation.Api e selecionar a opção 'Set as Startup Project';
+##### 'Package Manager Console' - em 'Default project', selecionar 'Pottencial.Teste.Infra.Data e executar o comando 'update-database'.
 
