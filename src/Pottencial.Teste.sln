@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pottencial.Teste.Domain", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pottencial.Teste.Infra.Data", "Pottencial.Teste.Infra.Data\Pottencial.Teste.Infra.Data.csproj", "{0CFEB0D6-E577-4967-A93F-730F4AD4D056}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pottencial.Teste.Presentation.Api", "Pottencial.Teste.Apresentacao.Api\Pottencial.Teste.Presentation.Api.csproj", "{34D01006-1DF7-418D-94E4-0DA4CC03262B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pottencial.Teste.Presentation.Api", "Pottencial.Teste.Presentation.Api\Pottencial.Teste.Presentation.Api.csproj", "{34D01006-1DF7-418D-94E4-0DA4CC03262B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pottencial.Teste.Infra.IoC", "Pottencial.Teste.Infra.IoC\Pottencial.Teste.Infra.IoC.csproj", "{76D0E52E-BA9A-471D-B9BE-3BE74719490D}"
 EndProject
