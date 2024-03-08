@@ -19,10 +19,5 @@ namespace Pottencial.Teste.Infra.Data.Context
 
             base.OnModelCreating(builder);
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
     }
 }

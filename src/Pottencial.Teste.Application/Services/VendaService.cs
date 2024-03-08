@@ -45,7 +45,7 @@ namespace Pottencial.Teste.Application.Services
             {
                 var produto = await _produtoRepository.GetByIdAsync(item.ProdutoId);
 
-                if (produto == null) throw new ApplicationException($"Item {item.Id} não encontrado");
+                if (produto == null || !produto.Ativo) throw new ApplicationException($"Produto {item.ProdutoId} não encontrado");
 
                 AplicarPoliticaPreco(item, produto);
             }

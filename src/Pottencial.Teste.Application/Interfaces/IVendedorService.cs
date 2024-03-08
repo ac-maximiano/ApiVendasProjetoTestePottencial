@@ -2,7 +2,7 @@
 
 namespace Pottencial.Teste.Application.Interfaces
 {
-    public interface IVendedorService 
+    public interface IVendedorService
     {
         Task<Guid> AdicionarAsync(VendedorDto dto);
         Task<VendedorDto> BuscarPorIdAsync(Guid id);

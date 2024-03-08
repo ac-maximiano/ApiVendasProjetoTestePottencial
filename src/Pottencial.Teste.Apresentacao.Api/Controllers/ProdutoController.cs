@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pottencial.Teste.Application.DTOs;
 using Pottencial.Teste.Application.Interfaces;
+using Pottencial.Teste.Presentation.Api.Filters;
 using Pottencial.Teste.Presentation.Api.ViewModels;
 
 namespace Pottencial.Teste.Presentation.Api.Controllers
@@ -21,24 +22,13 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Post([FromBody] ProdutoVM produto)
         {
-            if (produto == null) return BadRequest(ErrorFactory.InvalidData());
+            if (produto == null) throw new InvalidRequestDataException();
+            if (!ModelState.IsValid) throw new InvalidOperationException();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var produtoDto = _mapper.Map<ProdutoDto>(produto);
-                    var result = await _produtoService.AdicionarAsync(produtoDto);
+            var produtoDto = _mapper.Map<ProdutoDto>(produto);
+            var result = await _produtoService.AdicionarAsync(produtoDto);
 
-                    return new CreatedAtRouteResult("ConsultarProduto", new { id = result }, null);
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, ErrorFactory.InternalServerError(ex));
-                }
-            }
-
-            return BadRequest(ModelState);
+            return new CreatedAtRouteResult("ConsultarProduto", new { id = result }, null);
         }
 
         [HttpGet("{id:Guid}", Name = "ConsultarProduto")]
@@ -47,84 +37,52 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProdutoVM>> Get(Guid id)
         {
-            try
-            {
-                var produtoDto = await _produtoService.BuscarPorIdAsync(id);
 
-                if (produtoDto == null) return NotFound("Produto não encontrado");
+            var produtoDto = await _produtoService.BuscarPorIdAsync(id);
 
-                return Ok(_mapper.Map<ProdutoVM>(produtoDto));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            if (produtoDto == null) throw new NotFoundException();
 
+            return Ok(_mapper.Map<ProdutoVM>(produtoDto));
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ProdutoVM>>> Get(int take = 1, int skip = 0)
         {
-            if (take < 0 || skip < 0) return BadRequest("O parâmetros fora dos limites permitidos.");
-            if (take > MAX_RECORDS) BadRequest($"O parâmetro 'Take' não pode exceder {MAX_RECORDS} registros.");
+            var result = await _produtoService.BuscarAsync(take, skip);
 
-            try
-            {
-                var result = await _produtoService.BuscarAsync(take, skip);
-                
-                return Ok(_mapper.Map<IEnumerable<ProdutoVM>>(result));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            return Ok(_mapper.Map<IEnumerable<ProdutoVM>>(result));
         }
 
-        [HttpPut("AlterarProduto/{id:Guid}")]
+        [HttpPut("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Put(Guid id, [FromBody] ProdutoVM produto)
         {
-            if (id != produto.Id) return BadRequest("Os dados informados não são válidos");
-            if (produto == null) return BadRequest("Os dados informados não são válidos");
+            if (id != produto.Id) throw new InvalidRequestDataException();
+            if (produto == null) throw new InvalidRequestDataException();
 
-            try
-            {
-                var produtoEntidade = _mapper.Map<ProdutoDto>(produto);
+            var produtoEntidade = _mapper.Map<ProdutoDto>(produto);
 
-                await _produtoService.AtualizarAsync(produtoEntidade);
+            await _produtoService.AtualizarAsync(produtoEntidade);
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            return NoContent();
         }
 
-        [HttpDelete("ExcluirProduto/{id:Guid}")]
+        [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete(Guid id)
         {
-            try
-            {
-                var produtoDto = await _produtoService.BuscarPorIdAsync(id);
+            var produtoDto = await _produtoService.BuscarPorIdAsync(id);
 
-                if (produtoDto == null) return NotFound();
-                await _produtoService.RemoverAsync(id);
+            if (produtoDto == null) throw new NotFoundException();
+            await _produtoService.RemoverAsync(id);
 
-                return NoContent(); 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            return NoContent();
         }
     }
 }

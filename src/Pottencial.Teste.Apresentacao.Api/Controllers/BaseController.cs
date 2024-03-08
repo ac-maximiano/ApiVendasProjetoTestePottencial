@@ -11,6 +11,5 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
 
         protected readonly IMapper _mapper;
         protected BaseController(IMapper mapper) => _mapper = mapper;
-
     }
 }

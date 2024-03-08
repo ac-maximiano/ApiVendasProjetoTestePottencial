@@ -23,7 +23,7 @@ namespace Pottencial.Teste.Domain.Enums
         public static string GetDisplayName(Enum value)
         {
             FieldInfo? field = value.GetType().GetField(value.ToString());
-            DisplayAttribute displayAttribute = (DisplayAttribute) Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
+            DisplayAttribute displayAttribute = (DisplayAttribute)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
 
             return displayAttribute?.Name ?? value.ToString();
         }

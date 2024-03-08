@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pottencial.Teste.Application.DTOs;
 using Pottencial.Teste.Application.Interfaces;
-using Pottencial.Teste.DomainService.Services;
+using Pottencial.Teste.Presentation.Api.Filters;
 using Pottencial.Teste.Presentation.Api.ViewModels;
 
 namespace Pottencial.Teste.Presentation.Api.Controllers
@@ -22,24 +22,13 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Post([FromBody] VendaCommandVM venda)
         {
-            if (venda == null) return BadRequest(ErrorFactory.InvalidData());
+            if (venda == null) throw new InvalidRequestDataException();
+            if (!ModelState.IsValid) throw new InvalidOperationException();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var vendaDto = _mapper.Map<VendaDto>(venda);
-                    var result = await _vendaService.RegistrarVendaAsync(vendaDto);
+            var vendaDto = _mapper.Map<VendaDto>(venda);
+            var result = await _vendaService.RegistrarVendaAsync(vendaDto);
 
-                    return new CreatedAtRouteResult("ConsultarVenda", new { id = result }, null);
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, ErrorFactory.InternalServerError(ex));
-                }
-            }
-
-            return BadRequest(ModelState);
+            return new CreatedAtRouteResult("ConsultarVenda", new { id = result }, null);
         }
 
         [HttpGet("{id:Guid}", Name = "ConsultarVenda")]
@@ -48,18 +37,11 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<VendaQueryVM>> Get(Guid id)
         {
-            try
-            {
-                var vendaDto = await _vendaService.ConsultarVendaAsync(id);
+            var vendaDto = await _vendaService.ConsultarVendaAsync(id);
 
-                if (vendaDto == null) return NotFound("Venda não encontrada");
+            if (vendaDto == null) throw new NotFoundException();
 
-                return Ok(_mapper.Map<VendaQueryVM>(vendaDto));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            return Ok(_mapper.Map<VendaQueryVM>(vendaDto));
         }
 
         [HttpGet]
@@ -68,63 +50,37 @@ namespace Pottencial.Teste.Presentation.Api.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<VendaQueryVM>>> Get(int take = 1, int skip = 0)
         {
-            if (take < 0 || skip < 0) return BadRequest("O parâmetros fora dos limites permitidos.");
-            if (take > MAX_RECORDS) BadRequest("O parâmetro 'Take' não pode exceder 100 registros.");
+            var result = await _vendaService.ObterVendasAsync(take, skip);
 
-            try
-            {
-                var result = await _vendaService.ObterVendasAsync(take, skip);
-
-                return Ok(_mapper.Map<IEnumerable<VendaQueryVM>>(result));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            return Ok(_mapper.Map<IEnumerable<VendaQueryVM>>(result));
         }
 
         [HttpPut("ProgredirStatusVenda/{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Put(Guid id)
         {
-            try
-            {
-                await _vendaService.QualificarVenda(id);
+            var venda = await _vendaService.ConsultarVendaAsync(id);
 
-                return NoContent();
-            }
-            catch (QualificadorException ex)
-            {
-                return BadRequest(ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            if (venda == null) throw new NotFoundException();
+            await _vendaService.QualificarVenda(id);
+
+            return NoContent();
         }
 
         [HttpPut("CancelarVenda/{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> CancelarVenda(Guid id)
         {
-            try
-            {
-                await _vendaService.CancelarVenda(id);
+            var venda = await _vendaService.ConsultarVendaAsync(id);
 
-                return NoContent();
-            }
-            catch (QualificadorException ex)
-            {
-                return BadRequest(ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ErrorFactory.InternalServerError(ex));
-            }
+            if (venda == null) throw new NotFoundException();
+            await _vendaService.CancelarVenda(id);
+
+            return NoContent();
         }
     }
 }

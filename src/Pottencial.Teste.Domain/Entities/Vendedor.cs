@@ -11,7 +11,7 @@ namespace Pottencial.Teste.Domain.Entities
         public bool Ativo { get; private set; }
 
         public void Inativar() => this.Ativo = false;
-        
+
         #region NavigationProps
         public ICollection<Venda>? Pedidos { get; set; }
 

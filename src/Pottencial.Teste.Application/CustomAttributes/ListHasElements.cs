@@ -8,8 +8,8 @@ namespace Pottencial.Teste.Application.CustomAttributes
         public override bool IsValid(object value)
         {
             var list = value as IList;
-            
-            if(list != null)
+
+            if (list != null)
             {
                 return list.Count > 0;
             }

@@ -9,6 +9,8 @@ namespace Pottencial.Teste.Infra.Data.Repository.Base
     public abstract class RespositoryBase<TEntity>
         where TEntity : Entidade
     {
+        const int MAX_TAKE_RECORDS = 100;
+
         protected readonly AppDbContext _context;
         protected readonly DbSet<TEntity> _dbSet;
 
@@ -20,21 +22,29 @@ namespace Pottencial.Teste.Infra.Data.Repository.Base
 
         public async Task<TEntity> CreateAsync(TEntity entidade)
         {
-            try
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                _dbSet.Add(entidade);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _dbSet.Add(entidade);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
-                return entidade;
-            }
-            catch (Exception ex)
-            {
-                throw new PersistenceException("Salvar registro", ex);
+                    return entidade;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new PersistenceException("Salvar registro", ex);
+                }
             }
 
         }
         public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter, int take = 1, int skip = 0, params Expression<Func<TEntity, object>>[] includes)
         {
+            if (take > MAX_TAKE_RECORDS) take = MAX_TAKE_RECORDS;
+            if (skip <= 0) skip = 0;
+
             var query = _dbSet
                 .AsNoTracking()
                 .AsQueryable();
@@ -100,33 +110,40 @@ namespace Pottencial.Teste.Infra.Data.Repository.Base
         }
         public async Task<TEntity> RemoveAsync(TEntity entidade)
         {
-            try
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                _dbSet.Remove(entidade);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _dbSet.Remove(entidade);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
-                return entidade;
+                    return entidade;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new PersistenceException("Remover registro", ex);
+                }
             }
-            catch (Exception ex)
-            {
-                throw new PersistenceException("Remover registro", ex);
-
-            }
-            throw new NotImplementedException();
         }
         public async Task<TEntity> UpdateAsync(TEntity entidade)
         {
-            try
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                _dbSet.Update(entidade);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _dbSet.Update(entidade);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
-                return entidade;
-            }
-            catch (Exception ex)
-            {
-                throw new PersistenceException("Atualizar registro", ex);
-
+                    return entidade;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new PersistenceException("Atualizar registro", ex);
+                }
             }
         }
     }

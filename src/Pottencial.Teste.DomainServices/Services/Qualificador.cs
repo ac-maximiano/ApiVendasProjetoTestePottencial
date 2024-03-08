@@ -2,7 +2,7 @@
 
 namespace Pottencial.Teste.DomainService.Services
 {
-    public abstract class Qualificador<TEntity, TEnum> 
+    public abstract class Qualificador<TEntity, TEnum>
         where TEntity : IQualificavel<TEnum>
     {
         public TEntity Entity { get; private set; }

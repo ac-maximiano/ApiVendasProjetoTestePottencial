@@ -1,6 +1,4 @@
-﻿using Pottencial.Teste.Domain.Enums;
-
-namespace Pottencial.Teste.DomainService
+﻿namespace Pottencial.Teste.DomainService
 {
     public class ItemQualificacao<TEnum>
     {

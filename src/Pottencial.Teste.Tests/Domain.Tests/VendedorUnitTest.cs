@@ -30,9 +30,9 @@ namespace Pottencial.Teste.Tests.Domain.Tests
         {
             Action action = () => new Vendedor("aaa", "123.456.789-00", "teste@email.com", "");
 
-                action.Should()
-                .Throw<Pottencial.Teste.Domain.Validation.DomainExceptionValidation>()
-                .WithMessage("Um número de telefone deve ser informado");
+            action.Should()
+            .Throw<Pottencial.Teste.Domain.Validation.DomainExceptionValidation>()
+            .WithMessage("Um número de telefone deve ser informado");
         }
 
         [Fact]

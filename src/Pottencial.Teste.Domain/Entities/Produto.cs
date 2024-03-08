@@ -6,10 +6,10 @@ namespace Pottencial.Teste.Domain.Entities
 {
     public sealed class Produto : Entidade, IInativavel
     {
-        public Produto(string nome, string descricao, decimal precoReferencia, bool ativo = true)
+        public Produto(string nome, string descricao, decimal precoReferencia)
         {
             ValidateDomain(nome, descricao, precoReferencia);
-            Ativo = ativo;
+            Ativo = true;
         }
 
         public string? Nome { get; private set; }
@@ -29,7 +29,7 @@ namespace Pottencial.Teste.Domain.Entities
             DomainExceptionValidation.When(nome.Length < 3, "O nome de um produto deve conter no mínimo 3 caracteres");
             DomainExceptionValidation.When(string.IsNullOrEmpty(descricao), "Um produto deve ter alguma descrição");
             DomainExceptionValidation.When(descricao.Length < 5, "A descrição de um produto deve conter no mínimo 5 caracteres");
-            DomainExceptionValidation.When(precoReferencia < 0, "Preço de referência inválido");
+            DomainExceptionValidation.When(precoReferencia <= 0, "Preço de referência inválido");
 
             Nome = nome;
             Descricao = descricao;
